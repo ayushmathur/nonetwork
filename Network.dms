@@ -1,0 +1,193 @@
+***********************VLAN*********************************
+
+ Give same network for all the pc
+ 
+ on switch:
+ >en
+ >conf ter
+ >vlan 10 
+ >name a
+ >exit
+ >vlan 20
+ >name b
+ >exit
+ 
+ >int fa0/1  --->>(interface which the switch is connected to the PC)
+ >switchport access vlan 10
+ >exit
+ 
+ Same for the interfaces
+ 
+ **************************INTER-VLAN*********************************
+
+ on switch:
+ >en
+ >conf ter
+ >vlan 10 
+ >name a
+ >exit
+ >vlan 20
+ >name b
+ >exit
+ 
+ >int fa0/1  --->>(interface which the switch is connected to the PC)
+ >switchport access vlan 10
+ >exit
+ 
+ Same for the interfaces
+ 
+ on Router:
+  >interface fa0/0
+  >no shutdown
+  >interface fastEthernet 0/0.1
+  >encapsulation 
+  >encapsulation dot1Q 
+  >encapsulation dot1Q 10
+  >ip address 10.10.10.254 255.255.255.0
+  >exit
+  >interface fastEthernet 0/0.2
+  >encapsulation dot1Q 20
+  >ip address 10.10.40.254 255.255.255.0
+  >exit
+
+ on switch:
+ > interface fa0/5
+ >switchport mode trunk
+ 
+ **************************VTP*********************************
+ on switch 1(server mode):
+ >vtp domain hpc
+ >vtp password hpc
+ >vtp mode server 
+ >interface fa0/1
+ >switchport mode trunk 
+ 
+on switch 2(client mode):
+ >vtp domain hpc
+ >vtp password hpc
+ >vtp mode client 
+ >interface fa0/1
+ >switchport mode trunk 
+ 
+on switch 3(tranparent mode):
+ >vtp domain hpc
+ >vtp password hpc
+ >vtp mode transparent 
+ >interface fa0/1
+ >switchport mode trunk 
+ 
+ on switch 4(client mode):
+ >vtp domain hpc
+ >vtp password hpc
+ >vtp mode client 
+ >interface fa0/1
+ >switchport mode trunk 
+ 
+ 
+ now on switch 1 (create vlan):
+ 
+ >vlan 10
+ >name a
+ >exit
+ >do sh vlan  ----(on all switches)
+ 
+
+ **************************OSPF**********************************
+On router 1:
+>router ospf 1
+>network 192.168.1.0 0.0.0.255 area 0
+>network 10.10.10.0 0.0.0.255 area 0
+
+On router 2:
+>router ospf 1
+>network 192.168.2.0 0.0.0.255 area 0
+>network 10.10.10.0 0.0.0.255 area 0
+>network 10.10.20.0 0.0.0.255 area 0
+
+On router 3:
+>router ospf 1
+>network 192.168.3.0 0.0.0.255 area 0
+>network 10.10.20.0 0.0.0.255 area 0
+  
+ **************************EIGRP*********************************
+ 
+ On router 1:
+>router eigrp 1
+>network 192.168.1.0 0.0.0.255 
+>network 10.10.10.0 0.0.0.255
+
+On router 2:
+>router eigrp 1
+>network 192.168.2.0 0.0.0.255  
+>network 10.10.10.0 0.0.0.255  
+>network 10.10.20.0 0.0.0.255  
+
+On router 3:
+>router eigrp 1
+>network 192.168.3.0 0.0.0.255  
+>network 10.10.20.0 0.0.0.255  
+ **************************STATIC*********************************
+ on router 1:
+ network - 192.168.2.0
+ next hop -10.10.10.2
+ 
+ network - 192.168.3.0 
+ next hop - 10.10.10.2
+
+ on router 2:
+ network - 192.168.1.0
+ next hop -10.10.10.1
+ 
+ network - 192.168.3.0 
+ next hop - 10.10.20.2
+  
+ **************************RIP*********************************
+ 
+ add all the networks which are directly connected to the router
+ Router 1:
+192.168.1.0
+192.168.4.0
+ 
+ Router 2:
+192.168.2.0
+192.168.4.0
+192.168.5.0
+
+Router 3:
+192.168.3.0
+192.168.5.0
+
+ **************************RIPv2*********************************
+ On all routers:
+ 
+ >router rip
+ >version 2
+ >network 192.168.1.0
+ >network 192.168.4.0
+ 
+ **************************Telnet********************************
+ 
+Switch>enable 
+Switch#configure terminal 
+Switch(config)#interface vlan 1
+Switch(config-if)#ip address 192.168.1.1 255.255.255.0
+Switch(config-if)#no shutdown 
+Switch(config-if)#ex
+Switch(config)#line vty 0
+Switch(config-line)#password hpc123
+Switch(config-line)#login
+Switch(config-line)#end
+
+Switch#enable 
+Switch#configure terminal 
+Switch(config)#enable password hpc123
+Switch>en
+Password: 
+Switch#
+
+on command prompt:
+telnet 192.168.1.1
+ it will ask for password
+ enter password.
+**************************ACL********************************
+ 
